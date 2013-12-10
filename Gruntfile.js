@@ -1,7 +1,24 @@
 module.exports = function (grunt) {
-  require('matchdep').filterDev('grunt-*').forEach(grunt.loadNpmTasks);
-
+  require('load-grunt-tasks')(grunt);
   grunt.initConfig({
+
+    watch: {
+      all: {
+        options: {
+          livereload: 35729
+        },
+        files: ['lib/**/*.coffee', 'spec/lib/**/*.coffee', 'spec/support/**/*.coffee', 'less/**/*.less'],
+        tasks: 'default'
+      },
+      dev: {
+        options: {
+          livereload: 35729
+        },
+        files: ['lib/*.coffee', 'examples/**/*.html'],
+        tasks: ['concat:build/morris.coffee', 'coffee:lib']
+      }
+    },
+
     coffee: {
       lib: {
         options: { bare: false },
@@ -48,16 +65,7 @@ module.exports = function (grunt) {
       index: ['spec/specs.html'],
       options: {run: true}
     },
-    watch: {
-      all: {
-        files: ['lib/**/*.coffee', 'spec/lib/**/*.coffee', 'spec/support/**/*.coffee', 'less/**/*.less'],
-        tasks: 'default'
-      },
-      dev: {
-        files:  'lib/*.coffee' ,
-        tasks: ['concat:build/morris.coffee', 'coffee:lib']
-      }
-    },
+
     shell: {
       visual_spec: {
         command: './run.sh',
@@ -69,8 +77,20 @@ module.exports = function (grunt) {
           }
         }
       }
+    },
+
+    connect: {
+      server: {
+        options: {
+          open: true,
+          base: ['examples', 'third_party', '.'],
+          port: 9000,
+          livereload: 35729
+        }
+      }
     }
   });
 
+  grunt.registerTask('dev', ['connect', 'watch:dev'])
   grunt.registerTask('default', ['concat', 'coffee', 'less', 'uglify', 'mocha', 'shell:visual_spec']);
 };
